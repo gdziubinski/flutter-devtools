@@ -1,0 +1,612 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <title>reveal.js</title>
+
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet" href="css/theme/black.css">
+
+    <!-- Theme used for syntax highlighting of code -->
+    <link rel="stylesheet" href="lib/css/monokai.css">
+
+    <!-- Printing and PDF exports -->
+    <script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </script>
+
+    <style type="text/css">
+        .link-source{
+            font-size: 0.4em;
+        }
+
+        .no-border{
+            box-shadow: none !important;
+            border: 0px !important;
+            background: none !important;
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </style>
+</head>
+<body>
+<div class="reveal">
+    <div class="slides">
+        <section>
+            <h1>Flutter — make your life easier with DevTools</h1><br />
+            <h4>Grzegorz Dziubinski</h4>
+        </section>
+
+        <section>
+            <h3>UI</h3>
+            <h2>Networking</h2>
+            <h3>Performance</h3>
+            <h2>Code Quality</h2>
+        </section>
+
+        <section>
+
+            <section>
+                <h1>UI</h1>
+            </section>
+
+            <section>
+                <h2>What's the Widget?</h2>
+            </section>
+
+            <section>
+                <h2>Everything is a Widget</h2>
+
+                <pre><code data-line-numbers="13-15|11-12,16|9-10,17|4-8,18|1-3,19-20">Column(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+        Padding(
+            padding: EdgeInsets.only(
+                left: 10,
+                right: 10,
+            ),
+            child: GestureDetector(
+                onTap: _openCardDetails,
+                child: Opacity(
+                    opacity: isActive ?? 1.0 : 0.5,
+                    child: CreditCard(
+                        card: cardItem,
+                    ),
+                ),
+            ),
+        ),
+    ],
+)</code></pre>
+
+            </section>
+            <section>
+                <h2>...it can be even worse</h2>
+                <img data-src="media/app_widget_tree.gif" height="800px">
+            </section>
+            <section>
+                <h3>What's the reason?</h3>
+
+                <p><br/>
+                    - UI/UX complexity<br/>
+                    - Deep application flow
+
+                </p>
+            </section>
+
+            <section>
+                <img src="media/code_navigation.gif" height="800px">
+            </section>
+            <section>
+                <img src="media/app_navigation.gif" height="800px">
+            </section>
+
+        </section>
+
+        <section>
+            <section>
+                <h1>UI</h1>
+                <p>
+                    Should we care?
+                </p>
+
+            </section>
+            <section>
+                <img data-src="media/pixel_perfect.png">
+                <p class="link-source">
+                    https://pics.me.me/editing-css-just-one-more-pixel-perfect-garabatokid-0-10-61889664.png</p>
+            </section>
+            <section>
+                <img data-src="media/layout_bounds_android.png" height="600px">
+            </section>
+            <section>
+                <img data-src="media/no_layout_bounds.png" height="800px">
+            </section>
+
+            <section>
+                <pre><code>
+public class FlutterActivity extends Activity implements Provider, PluginRegistry, ViewFactory {
+
+    // ...
+
+    public FlutterView getFlutterView() {
+        return this.viewProvider.getFlutterView();
+    }
+                </code></pre>
+                <pre class="fragment"><code data-line-numbers="7,10">
+    public void onCreate(Bundle savedInstanceState) {
+        // ...
+
+        this.flutterView = this.viewFactory.createFlutterView(this.activity);
+        if (this.flutterView == null) {
+            FlutterNativeView nativeView = this.viewFactory.createFlutterNativeView();
+            this.flutterView = new FlutterView(this.activity, (AttributeSet)null, nativeView);
+            this.flutterView.setLayoutParams(matchParent);
+            this.activity.setContentView(this.flutterView);
+
+            // ...
+        }
+
+        // ...
+
+        }
+
+                </code></pre>
+
+
+                <pre class="fragment"><code>
+public class FlutterView extends SurfaceView
+                </code></pre>
+
+            </section>
+
+            <section>
+                <img data-src="media/flutter_inspector_layout_bounds.png" height="800px">
+            </section>
+            <section>
+                <img class="no-border" data-src="media/layout_bound.png" height="800px">
+                <img class="no-border" data-src="media/layout_bounds_2.png" height="800px">
+            </section>
+        </section>
+
+        <section>
+            <!--https://www.needpix.com/photo/download/1583559/network-internet-communication-technology-business-digital-information-connection-global-->
+            <section data-background-image="media/backgrounds/network.jpg">
+                <h1>Networking</h1>
+                <p>What's on the plate?</p>
+            </section>
+            <section>
+                <h4><a href="https://github.com/pq/logs">pq/logs</a>: A lightweight Dart logging
+                    framework</h4>
+                <pre><code>logs:
+    git: https://github.com/pq/logs.git
+                </code></pre>
+                <pre><code>import 'package:logs/logs.dart';
+
+final Log httpLog = Log('http');
+
+void main() {
+  httpLog.enabled = true;
+}
+</code></pre>
+                <img class="fragment" data-src="media/pq_logs.png"/>
+            </section>
+            <section>
+                <h4><a href="https://pub.dev/packages/alice">Alice</a>: HTTP Inspector tool for
+                    Flutter with built in UI</h4>
+                <pre><code>dependencies:
+  alice: ^0.0.23</code></pre>
+
+                <pre><code>httpClient
+	.getUrl(Uri.parse("https://jsonplaceholder.typicode.com/posts"))
+	.then((request) async {
+		alice.onHttpClientRequest(request);
+		var httpResponse = await request.close();
+		var responseBody = await httpResponse.transform(utf8.decoder).join();
+		alice.onHttpClientResponse(httpResponse, request, body: responseBody);
+ });
+                </code></pre>
+                <pre class="fragment" data-fragment-index="1"><code>httpClient
+    .postUrl(Uri.parse("https://jsonplaceholder.typicode.com/posts"))
+    .interceptWithAlice(alice, body: body, headers: Map());
+
+                </code></pre>
+                or
+                <pre><code>http.get('https://jsonplaceholder.typicode.com/posts').then((response) {
+    alice.onHttpResponse(response);
+});
+                </code></pre>
+
+                <pre class="fragment" data-fragment-index="1"><code>http
+    .post('https://jsonplaceholder.typicode.com/posts', body: body)
+    .interceptWithAlice(alice, body: body);</code></pre>
+            </section>
+            <section>
+                <p>
+                    <img style="height: 600px;" class="no-border" data-src="media/alice_list.png"/>
+                    <img style="height: 600px;" class="no-border"
+                         data-src="media/alice_request.png"/>
+                    <img style="height: 600px;" class="no-border"
+                         data-src="media/alice_response.png"/>
+                </p>
+            </section>
+            <section>
+                <h4>Charles : Web debugging proxy</h4>
+                <p><img class="no-border" style="height: 300px;" data-src="media/charles_log.svg"/>
+                </p>
+            </section>
+            <section>
+                <pre><code style="max-height: 600px;">String proxy = 'YOUR_LOCAL_IP:8888';
+
+
+// Create a new HttpClient instance.
+HttpClient httpClient = new HttpClient();
+
+// Hook into the findProxy callback to set
+// the client's proxy.
+httpClient.findProxy = (uri) {
+  return "PROXY $proxy;";
+};
+
+// This is a workaround to allow Charles to receive
+// SSL payloads when your app is running on Android.
+httpClient.badCertificateCallback =
+  ((X509Certificate cert, String host, int port) => Platform.isAndroid);
+
+// Pass your newly instantiated HttpClient to http.IOClient.
+IOClient myClient = IOClient(httpClient);
+
+// Make your request as normal.
+var response = myClient.get('/my-url');
+</code></pre>
+                <p style="font-size: 0.5em;">
+                    https://medium.com/flutter-community/three-easy-ways-to-debug-network-requests-in-flutter-53043e898929
+                </p>
+
+            </section>
+
+            <section>
+                <img data-src="media/charles.png" style="height: 800px;"/>
+            </section>
+        </section>
+        <section>
+            <section><h1>Performance</h1></section>
+
+            <section>
+                <h4>Flutter build modes</h4>
+                <pre><code data-line-numbers="6|7-8|7">> flutter run --help
+Run your Flutter app on an attached device.
+
+Usage: flutter run [arguments]
+-h, --help             Print this usage information.
+    --debug            Build a debug version of your app (default mode).
+    --profile          Build a version of your app specialized for performance profiling.
+    --release          Build a release version of your app.
+    --flavor           Build a custom app flavor as defined by platform-specific build setup.
+                       Supports the use of product flavors in Android Gradle scripts, and the use
+                       of custom Xcode schemes.
+                </code>
+                </pre>
+            </section>
+            <section>
+
+                <h4>Frame rendering chart</h4>
+                <img data-src="media/frame_rendering.png"/>
+                <p>16 ms / 60 FPS</p>
+            </section>
+            <section>
+                <h4><strike>Frame</strike> Flame chart</h4>
+                <img data-src="media/flame_chart.png"/>
+            </section>
+            <section>
+                <h1>Memory</h1>
+            </section>
+            <section>
+                <h4>Memory Overview Chart</h4>
+                <img data-src="media/memory_view.png"/>
+            </section>
+
+            <section>
+                <h4>Snapshot classes</h4>
+                <img data-src="media/snapshot_classes.png"/>
+            </section>
+            <section data-background-color="#FFF">
+                <img class="no-border" data-src="media/memory_settings.png"/><img
+                    class="no-border fragment" data-src="media/filtering.png"/> <br/>
+                <img class="no-border fragment" data-src="media/memory_result.png"/><br/>
+            </section>
+        </section>
+
+        <section>
+            <section>
+                <h1>Code Quality</h1>
+            </section>
+
+            <section>
+                <a href="https://dart.dev/guides/language/effective-dart">https://dart.dev/guides/language/effective-dart
+                </a>
+            </section>
+            <section>
+                <h4><a href="https://pub.dev/">pub.dev</a>/packages/<a
+                        href="https://pub.dev/packages/pedantic">pedantic 1.9.0</a></h4>
+                <h4><a href="https://github.com/">github.com</a>/dart-lang/<a
+                        href="https://github.com/dart-lang/pedantic">pedantic</a></h4>
+            </section>
+
+            <section>
+
+                <pre><code>
+# If you use `package:pedantic/pedantic.dart`, add a normal dependency.
+dependencies:
+  pedantic: ^1.9.0
+
+# Or, if you just want `analysis_options.yaml`, it can be a dev dependency.
+dev_dependencies:
+  pedantic: ^1.9.0
+                </code></pre>
+
+
+            </section>
+            <section>
+                <h3>analysis_options.yaml</h3>
+
+                <pre><code>
+        include: package:pedantic/analysis_options.yaml
+    </code></pre>
+
+                <pre class="fragment"><code>
+        include: package:pedantic/analysis_options.1.9.0.yaml
+    </code></pre>
+                <pre class="fragment"><code style="max-height: 600px;">
+linter:
+  rules:
+    - always_declare_return_types
+    - always_require_non_null_named_parameters
+    - annotate_overrides
+    - avoid_empty_else
+    - avoid_init_to_null
+    - avoid_null_checks_in_equality_operators
+    - avoid_relative_lib_imports
+    - avoid_return_types_on_setters
+    - avoid_shadowing_type_parameters
+    - avoid_types_as_parameter_names
+    - camel_case_extensions
+    - curly_braces_in_flow_control_structures
+    - empty_catches
+    - empty_constructor_bodies
+    - library_names
+    - library_prefixes
+    - no_duplicate_case_values
+    - null_closures
+    - omit_local_variable_types
+    - prefer_adjacent_string_concatenation
+    - prefer_collection_literals
+    - prefer_conditional_assignment
+    - prefer_contains
+    - prefer_equal_for_default_values
+    - prefer_final_fields
+    - prefer_for_elements_to_map_fromIterable
+    - prefer_generic_function_type_aliases
+    - prefer_if_null_operators
+    - prefer_is_empty
+    - prefer_is_not_empty
+    - prefer_iterable_whereType
+    - prefer_single_quotes
+    - prefer_spread_collections
+    - recursive_getters
+    - slash_for_doc_comments
+    - type_init_formals
+    - unawaited_futures
+    - unnecessary_const
+    - unnecessary_new
+    - unnecessary_null_in_if_null_operators
+    - unnecessary_this
+    - unrelated_type_equality_checks
+    - use_function_type_syntax_for_parameters
+    - use_rethrow_when_possible
+    - valid_regexps
+    </code></pre>
+
+
+            </section>
+            <section>
+                <h3>Make it part of delivery process</h3>
+                <img data-src="media/flutter_analyze.png"/>
+
+                <pre class="fragment">
+> flutter analyze
+Analyzing ...
+
+   info • This function has a return type of 'bool', but doesn't end with a return statement • lib/src/pages/home_page.dart:68:39 • missing_return
+   info • This function has a return type of 'bool', but doesn't end with a return statement • lib/src/pages/home_page.dart:274:39 • missing_return
+   info • 'headline' is deprecated and shouldn't be used. This is the term used in the 2014 version of material design. The modern term is headline5. This feature was deprecated after v1.13.8. •
+          lib/src/widgets/credit_card.dart:40:54 • deprecated_member_use
+   info • 'headline' is deprecated and shouldn't be used. This is the term used in the 2014 version of material design. The modern term is headline5. This feature was deprecated after v1.13.8. •
+          lib/src/widgets/credit_card.dart:61:60 • deprecated_member_use
+
+4 issues found. (ran in 4.5s)
+
+                </pre>
+
+            </section>
+        </section>
+
+
+        <section>
+            <section>
+                <h1>Logger</h1>
+                <p>When debugging is too much</p></section>
+            <section><pre><code>part of dart.core;
+
+void print(Object object) {
+</code></pre>
+                <p class="fragment" data-fragment-index="1">or</p>
+                <pre class="fragment" data-fragment-index="1"><code>import 'dart:io';
+
+// ...
+
+stdout.writeln(”Log message");
+stderr.writeln(”Error log message ");
+</code></pre>
+            </section>
+            <section>
+                <p>...or</p>
+                <pre><code>
+external void log(String message, {
+    DateTime time,
+    int sequenceNumber,
+    int level: 0,
+    String name: '',
+    Zone zone,
+    Object error,
+    StackTrace stackTrace,
+});
+
+
+</code></pre>
+
+                <pre><code>
+import 'dart:developer' as developer;
+
+developer.log('scan_manual_input',
+    name: 'Reporting',
+)
+                </code></pre>
+            </section>
+            <section data-background-color="#FFF">
+                <img data-src="media/logs.png" class="no-border">
+            </section>
+
+            <section data-background-color="#242423">
+                <img data-src="media/logs_styles.png" class="no-border" style="width: 800px;">
+            </section>
+
+        </section>
+        <section>
+            <h3><a>the</a>End</h3>
+            <h6>Thank you for the attention!</h6>
+            <img src="media/qr_code.png">
+
+            <p style="font-size: 0.5em">
+                https://gdziubinski.github.io/flutter-devtools/<br/><br/>
+            </p>
+
+            <p>github.com/<a style="line-height:64px;" href="https://github.com/gdziubinski/"
+                             target="_blank">gdziubinski</a></p>
+            <p>linkedin.com/in/<a href="https://www.linkedin.com/in/grzegorzdziubinski/"
+                                  target="_blank">grzegorzdziubinski</a></p>
+        </section>
+    </div>
+</div>
+
+<script src="js/reveal.js"></script>
+
+<script>
+			// More info about config & dependencies:
+			// - https://github.com/hakimel/reveal.js#configuration
+			// - https://github.com/hakimel/reveal.js#dependencies
+			Reveal.initialize({
+				hash: true,
+				dependencies: [
+					{ src: 'plugin/markdown/marked.js' },
+					{ src: 'plugin/markdown/markdown.js' },
+					{ src: 'plugin/highlight/highlight.js' },
+					{ src: 'plugin/notes/notes.js', async: true }
+				],
+				width: 1960,
+	            height: 1000,
+	            //parallaxBackgroundImage: "https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg",
+	            //parallaxBackgroundSize: "2100px 900px",
+	            //parallaxBackgroundHorizontal: 200,
+	            //parallaxBackgroundVertical: 50
+			});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</script>
+</body>
+</html>
